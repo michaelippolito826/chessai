@@ -3,41 +3,75 @@ let game = new Chess()
 let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
 let $eval = $('#eval')
-
-// AI
-function evaluateBoard() {
-  let totalEvaluation = 0
-  for (let i = 0; i < 8; i++) {
-    for (let j = 0; j < 8; j++) {
-      totalEvaluation = totalEvaluation + getPieceValue(board[i][j])
+// Evaulation Function
+function evaluateBoard(fentoobject) {
+  var piecesOnBoard = [];
+  for(key in fentoobject) {
+    if (fentoobject.hasOwnProperty(key)) {
+      piecesOnBoard.push(fentoobject[key]);
     }
   }
-  return totalEvaluation
+  //window.alert(piecesOnBoard)
+
+
+  let whiteEvaluation = 0
+  let blackEvaluation = 0
+  let eval = 0
+  try {
+  for (let i = 0; i < piecesOnBoard.length; i++) {
+       let currentPieceValue = getPieceValue(piecesOnBoard[i])
+       if (currentPieceValue > 0) {
+           whiteEvaluation = whiteEvaluation + currentPieceValue
+       } else if (currentPieceValue < 0) {
+           blackEvaluation = blackEvaluation + currentPieceValue }  
+  }
+  eval = whiteEvaluation + blackEvaluation
+  return eval;
+  }catch(e){
+  alert(e)
+  }
+}
+
+function Search() {
+  try{
+  var possibleMoves = game.moves()
+  window.alert(possibleMoves)
+
+  // game over
+  if (possibleMoves.length === 0) return window.alert("Checkmate!");
+
+  return possibleMoves;
+  }catch(e){
+  alert(e)}
 }
 
 function getPieceValue (piece) {
-  if (piece === null) {
+  if (piece === 'wP') {
+      return 100;
+  } else if (piece === 'wN') {
+      return 300;
+  } else if (piece === 'wB') {
+      return 300;
+  } else if (piece === 'wR') {
+      return 500;
+  } else if (piece === 'wQ') {
+      return 900;
+  } else if (piece === 'wK') {
+      return 0;
+  } else if (piece === 'bP') {
+      return -100;
+  } else if (piece === 'bN') {
+      return -300;
+  } else if (piece === 'bB') {
+      return -300;
+  } else if (piece === 'bR') {
+      return -500;
+  } else if (piece === 'bQ') {
+      return -900;
+  } else if (piece === 'bK') {
       return 0;
   }
-  function getAbsoluteValue (piece) {
-      if (piece.type === 'p') {
-          return 10;
-      } else if (piece.type === 'r') {
-          return 50;
-      } else if (piece.type === 'n') {
-          return 30;
-      } else if (piece.type === 'b') {
-          return 30 ;
-      } else if (piece.type === 'q') {
-          return 90;
-      } else if (piece.type === 'k') {
-          return 900;
-      }
-      throw "Unknown piece type: " + piece.type;
-  };
-
-  var absoluteValue = getAbsoluteValue(piece, piece.color === 'w');
-  return piece.color === 'w' ? absoluteValue : -absoluteValue;
+    throw "Unknown piece type: " + piece;
 };
 
 
@@ -65,14 +99,15 @@ function onDragStart(source, piece, position, orientation) {
   if (piece.search(/^b/) !== -1) return false
 }
 
-function makeRandomMove () {
-  var possibleMoves = game.moves()
-
-  // game over
-  if (possibleMoves.length === 0) return
+function enemyMove () {
+  possibleMoves = Search()
 
   var randomIdx = Math.floor(Math.random() * possibleMoves.length)
   game.move(possibleMoves[randomIdx])
+  let fentoobject = Chessboard.fenToObj(game.fen())
+
+  //let evaluation = evaluateBoard(fentoobject)
+  //window.alert(evaluation)
   board.position(game.fen())
 }
 
@@ -90,7 +125,7 @@ function onDrop(source, target) {
   if (move === null) return 'snapback'
 
   // make random legal move for black
-  window.setTimeout(makeRandomMove, 250)
+  window.setTimeout(enemyMove, 250)
 
 }
 
@@ -132,5 +167,19 @@ let config = {
   onSnapEnd: onSnapEnd,
   onMouseoutSquare: onMouseoutSquare,
   onMouseoverSquare: onMouseoverSquare,
+  showErrors: 'alert',
 }
 board = Chessboard('myBoard', config)
+
+//window.addEventListener("error", handleError, true);
+
+function handleError(evt) {
+    if (evt.message) { // Chrome sometimes provides this
+      alert("error: "+evt.message +" at linenumber: "+evt.lineno+" of file: "+evt.filename);
+    } else {
+      alert("error: "+evt.type+" from element: "+(evt.srcElement || evt.target));
+    }
+}
+window.onerror = function(message, url, line) {
+  alert(message + ', ' + url + ', ' + line);
+};

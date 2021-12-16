@@ -101,10 +101,12 @@ function onDragStart(source, piece, position, orientation) {
 
 function enemyMove () {
   possibleMoves = Search()
-
-  var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-  game.move(possibleMoves[randomIdx])
-  let fentoobject = Chessboard.fenToObj(game.fen())
+  if (possibleMoves == undefined) {}
+  else {
+    var randomIdx = Math.floor(Math.random() * possibleMoves.length)
+    game.move(possibleMoves[randomIdx])
+    let fentoobject = Chessboard.fenToObj(game.fen())
+  }
 
   //let evaluation = evaluateBoard(fentoobject)
   //window.alert(evaluation)

@@ -1325,6 +1325,12 @@ var Chess = function (fen) {
     /***************************************************************************
      * PUBLIC CONSTANTS (is there a better way to do this?)
      **************************************************************************/
+    turn: function() {
+      return turn;
+    },
+    setTurn: function(newTurn) {
+      turn = newTurn;
+    },
     WHITE: WHITE,
     BLACK: BLACK,
     PAWN: PAWN,

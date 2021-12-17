@@ -16,7 +16,6 @@ function evaluateBoard(fentoobject) {
 
   let whiteEvaluation = 0
   let blackEvaluation = 0
-  let eval = 0
   try {
   for (let i = 0; i < piecesOnBoard.length; i++) {
        let currentPieceValue = getPieceValue(piecesOnBoard[i])
@@ -25,22 +24,54 @@ function evaluateBoard(fentoobject) {
        } else if (currentPieceValue < 0) {
            blackEvaluation = blackEvaluation + currentPieceValue }  
   }
-  eval = whiteEvaluation + blackEvaluation
-  return eval;
+  let evaluation = whiteEvaluation + blackEvaluation
+  return evaluation;
   }catch(e){
   alert(e)
   }
 }
 
-function Search() {
+function Search(depth) {
   try{
-  var possibleMoves = game.moves()
+  let fentoobject = Chessboard.fenToObj(game.fen())
+  let possibleMoves = game.moves()
   window.alert(possibleMoves)
 
   // game over
   if (possibleMoves.length === 0) return window.alert("Checkmate!");
 
-  return possibleMoves;
+
+  
+  if (depth == 0) {
+    return evaluateBoard(fentoobject);
+  }
+  let bestMove = ''
+  let evaluationInt = 99999
+  let evaluation = 0
+  
+  for (let j = 0; j < possibleMoves.length; j++) {
+    
+    let move = possibleMoves[j]
+    
+    game.move(move)
+    fentoobject = Chessboard.fenToObj(game.fen())
+    evaluation = evaluateBoard(fentoobject)
+    game.undo(move)
+
+    //game.setTurn("w")
+    //whitemoves = game.moves()
+    //window.alert(whitemoves)
+    
+    if (evaluation <= evaluationInt) {
+      evaluationInt = evaluation
+      bestMove = move
+    }
+  }
+  window.alert(bestMove)
+  window.alert(evaluationInt)
+  
+  
+  return bestMove;
   }catch(e){
   alert(e)}
 }
@@ -57,7 +88,7 @@ function getPieceValue (piece) {
   } else if (piece === 'wQ') {
       return 900;
   } else if (piece === 'wK') {
-      return 0;
+      return 9000;
   } else if (piece === 'bP') {
       return -100;
   } else if (piece === 'bN') {
@@ -69,7 +100,7 @@ function getPieceValue (piece) {
   } else if (piece === 'bQ') {
       return -900;
   } else if (piece === 'bK') {
-      return 0;
+      return -9000;
   }
     throw "Unknown piece type: " + piece;
 };
@@ -100,16 +131,31 @@ function onDragStart(source, piece, position, orientation) {
 }
 
 function enemyMove () {
-  possibleMoves = Search()
-  if (possibleMoves == undefined) {}
-  else {
-    var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-    game.move(possibleMoves[randomIdx])
-    let fentoobject = Chessboard.fenToObj(game.fen())
-  }
+  // search function (depth, alpha, beta)
+  
+  let depth = 1
 
-  //let evaluation = evaluateBoard(fentoobject)
-  //window.alert(evaluation)
+  nextMove = Search(depth)
+  game.move(nextMove)
+  
+
+
+
+
+
+
+
+  //possibleMoves = Search()
+  //if (possibleMoves == undefined) {}
+  //else {
+    //var randomIdx = Math.floor(Math.random() * possibleMoves.length)
+    //game.move(possibleMoves[randomIdx])
+    //let fentoobject = Chessboard.fenToObj(game.fen())
+      //let evaluation = evaluateBoard(fentoobject)
+      //window.alert(evaluation)
+  //}
+
+  
   board.position(game.fen())
 }
 

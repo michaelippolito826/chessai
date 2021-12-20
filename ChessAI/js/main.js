@@ -13,7 +13,8 @@ let queengambitop = ["1.d4 d5 2.c4 dxc4"]
 
 
 // Evaulation Function
-function evaluateBoard(fentoobject) {
+function evaluateBoard() {
+  let fentoobject = Chessboard.fenToObj(game.fen())
   var piecesOnBoard = [];
   for(key in fentoobject) {
     if (fentoobject.hasOwnProperty(key)) {
@@ -41,46 +42,76 @@ function evaluateBoard(fentoobject) {
 
 function Search(depth) {
   try{
-  let fentoobject = Chessboard.fenToObj(game.fen())
-  let possibleMoves = game.moves()
-  window.alert(possibleMoves)
-
-  // game over
-  if (possibleMoves.length === 0) return window.alert("Checkmate!");
-
-  if (depth == 0) {
-    return evaluateBoard(fentoobject);
-  }
-
-  let bestMove = ''
-  let evaluationInt = 99999
-  let evaluation = 0
-  
-  for (let j = 0; j < possibleMoves.length; j++) {
-    
-    let move = possibleMoves[j]
-    
-    game.move(move)
-    fentoobject = Chessboard.fenToObj(game.fen())
-    evaluation = evaluateBoard(fentoobject)
-    game.undo(move)
-
-    //game.setTurn("w")
-    //whitemoves = game.moves()
-    //window.alert(whitemoves)
-    
-    if (evaluation <= evaluationInt) {
-      evaluationInt = evaluation
-      bestMove = move
+    let possibleMoves = game.moves()
+    if (depth == 0) {
+      return evaluateBoard();
     }
-  }
-  window.alert(bestMove)
-  window.alert(evaluationInt)
-  
-  return bestMove;
+
+    if (possibleMoves.length === 0) return window.alert("Checkmate!");
+
+    let bestEvaluation = -99999
+
+    for (let j = 0; j < possibleMoves.length; j++) {
+      let move = possibleMoves[j]
+      game.move(move)
+      let evaluation = -Search(depth - 1)
+      bestEvaluation = Math.max(evaluation, bestEvaluation)
+      game.undo(move)
+      window.alert(evaluation)
+      window.alert(bestEvaluation)
+    }
+    
+    return bestEvaluation;
   }catch(e){
-  alert(e)}
+  alert(e.stack)}
 }
+
+//function Search(depth) {
+//     try{
+//     let fentoobject = Chessboard.fenToObj(game.fen())
+//     let possibleMoves = game.moves()
+//     window.alert(possibleMoves)
+  
+//     // game over
+//     if (possibleMoves.length === 0) return window.alert("Checkmate!");
+  
+//     if (depth == 0) {
+//       return evaluateBoard(fentoobject);
+//     }
+  
+//     let bestMove = ''
+//     let evaluationInt = 99999
+//     let evaluation = 0
+    
+//     for (let j = 0; j < possibleMoves.length; j++) {
+      
+//       let move = possibleMoves[j]
+      
+//       game.move(move)
+//       fentoobject = Chessboard.fenToObj(game.fen())
+//       evaluation = evaluateBoard(fentoobject)
+//       game.undo(move)
+  
+//       if (evaluation <= evaluationInt) {
+//         evaluationInt = evaluation
+//         bestMove = move
+//       }
+  
+//       game.setTurn("w")
+//       whitemoves = game.moves()
+//       window.alert(whitemoves)      
+      
+      
+      
+      
+//     }
+//     window.alert(bestMove)
+//     window.alert(evaluationInt)
+    
+//     return evaluationInt, bestMove;
+//     }catch(e){
+//     alert(e)}
+//   }
 
 function getPieceValue (piece) {
   if (piece === 'wP') {
@@ -113,24 +144,23 @@ function getPieceValue (piece) {
 
 function enemyMove () {
   // search function (depth, alpha, beta)
-  
   let depth = 1
 
-  nextMove = Search(depth)
-  game.move(nextMove)
-
-  //possibleMoves = Search()
-  //if (possibleMoves == undefined) {}
-  //else {
-    //var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-    //game.move(possibleMoves[randomIdx])
-    //let fentoobject = Chessboard.fenToObj(game.fen())
-      //let evaluation = evaluateBoard(fentoobject)
-      //window.alert(evaluation)
+  //if (turn == 0) {
+    //nextMove = "e5"
+    //game.move(nextMove)
+  //} else if (turn == 1) {
+    //nextMove = "Nc6"
+    //game.move(nextMove)
+  //} else {
+    //nextMove = Search(depth)
+    //game.move(nextMove)
   //}
+  window.alert(Search(depth))
   board.position(game.fen())
-  turn = turn + 1
-  window.alert(turn)
+
+  //turn = turn + 1
+  //window.alert(turn)
 }
 
 // show legal moves

@@ -6,7 +6,7 @@ Using ChessBoard.js and Chess.js
 
 0.2.0
 - AI uses evaluation function (without openings early moves arent too smart)
-- Always chooses last possible move
+- Tends to chooses last possible move
 
 TO-DO
 - 

@@ -3,6 +3,15 @@ let game = new Chess()
 let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
 let $eval = $('#eval')
+let turn = 0
+
+let italianop = ["1.e4 e5 2.Nf3 Nc6 3.Bc4"]
+let scotchop = ["1.e4 e5 2.Nf3 Nc6 3.d4"]
+let petroffop = ["1.e4 e5 2.Nf3 Nf6"]
+let ruylopezop = ["1.e4 e5 2.Nf3 Nc6 3.Bb5"]
+let queengambitop = ["1.d4 d5 2.c4 dxc4"]
+
+
 // Evaulation Function
 function evaluateBoard(fentoobject) {
   var piecesOnBoard = [];
@@ -12,8 +21,7 @@ function evaluateBoard(fentoobject) {
     }
   }
   //window.alert(piecesOnBoard)
-
-
+  
   let whiteEvaluation = 0
   let blackEvaluation = 0
   try {
@@ -40,11 +48,10 @@ function Search(depth) {
   // game over
   if (possibleMoves.length === 0) return window.alert("Checkmate!");
 
-
-  
   if (depth == 0) {
     return evaluateBoard(fentoobject);
   }
+
   let bestMove = ''
   let evaluationInt = 99999
   let evaluation = 0
@@ -69,7 +76,6 @@ function Search(depth) {
   }
   window.alert(bestMove)
   window.alert(evaluationInt)
-  
   
   return bestMove;
   }catch(e){
@@ -105,6 +111,27 @@ function getPieceValue (piece) {
     throw "Unknown piece type: " + piece;
 };
 
+function enemyMove () {
+  // search function (depth, alpha, beta)
+  
+  let depth = 1
+
+  nextMove = Search(depth)
+  game.move(nextMove)
+
+  //possibleMoves = Search()
+  //if (possibleMoves == undefined) {}
+  //else {
+    //var randomIdx = Math.floor(Math.random() * possibleMoves.length)
+    //game.move(possibleMoves[randomIdx])
+    //let fentoobject = Chessboard.fenToObj(game.fen())
+      //let evaluation = evaluateBoard(fentoobject)
+      //window.alert(evaluation)
+  //}
+  board.position(game.fen())
+  turn = turn + 1
+  window.alert(turn)
+}
 
 // show legal moves
 function removeGreySquares() {
@@ -130,35 +157,6 @@ function onDragStart(source, piece, position, orientation) {
   if (piece.search(/^b/) !== -1) return false
 }
 
-function enemyMove () {
-  // search function (depth, alpha, beta)
-  
-  let depth = 1
-
-  nextMove = Search(depth)
-  game.move(nextMove)
-  
-
-
-
-
-
-
-
-  //possibleMoves = Search()
-  //if (possibleMoves == undefined) {}
-  //else {
-    //var randomIdx = Math.floor(Math.random() * possibleMoves.length)
-    //game.move(possibleMoves[randomIdx])
-    //let fentoobject = Chessboard.fenToObj(game.fen())
-      //let evaluation = evaluateBoard(fentoobject)
-      //window.alert(evaluation)
-  //}
-
-  
-  board.position(game.fen())
-}
-
 function onDrop(source, target) {
   removeGreySquares()
 
@@ -174,7 +172,6 @@ function onDrop(source, target) {
 
   // make random legal move for black
   window.setTimeout(enemyMove, 250)
-
 }
 
 // update the board position after the piece snap

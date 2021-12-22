@@ -12,3 +12,4 @@ TO-DO
 - minimax implementation
 - alpha-beta pruning
 - move ordering
+- Piece Square Tables implementations

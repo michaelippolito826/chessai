@@ -13,3 +13,4 @@ TO-DO
 - alpha-beta pruning
 - move ordering
 - Piece Square Tables implementations
+- Optimizing evaluation function (keep track of captured pieces)

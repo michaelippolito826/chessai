@@ -9,4 +9,6 @@ Using ChessBoard.js and Chess.js
 - Tends to chooses last possible move
 
 TO-DO
-- 
+- minimax implementation
+- alpha-beta pruning
+- move ordering

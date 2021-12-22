@@ -57,8 +57,10 @@ function Search(depth) {
       let evaluation = -Search(depth - 1)
       bestEvaluation = Math.max(evaluation, bestEvaluation)
       game.undo(move)
-      window.alert(evaluation)
-      window.alert(bestEvaluation)
+      // window.alert(evaluation)
+      // window.alert(bestEvaluation)
+      console.log(evaluation)
+      console.log(bestEvaluation)
     }
     
     return bestEvaluation;
@@ -156,7 +158,8 @@ function enemyMove () {
     //nextMove = Search(depth)
     //game.move(nextMove)
   //}
-  window.alert(Search(depth))
+  // window.alert(Search(depth))
+  console.log(Search(depth))
   board.position(game.fen())
 
   //turn = turn + 1
@@ -235,7 +238,8 @@ function onMouseoutSquare(square, piece) {
 
 let config = {
   draggable: true,
-  position: 'start',
+  // position: 'start',
+  position: 'r1b1kbnr/ppp2ppp/2nqp3/3pN3/3P4/3Q4/PPP1PPPP/RNB1KB1R',
   moveSpeed: 100,
   onDragStart: onDragStart,
   onDrop: onDrop,

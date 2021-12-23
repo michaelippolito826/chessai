@@ -5,6 +5,8 @@ let blackSquareGrey = '#696969'
 let $eval = $('#eval')
 let turn = 0
 let positionCount = 0
+let alpha = 0
+let beta = 0
 
 let italianop = ["1.e4 e5 2.Nf3 Nc6 3.Bc4"]
 let scotchop = ["1.e4 e5 2.Nf3 Nc6 3.d4"]
@@ -36,7 +38,7 @@ function evaluateBoard() {
   return [evalMove, evaluation];
 }
 
-function Search(depth, black) {
+function Search(depth, black, alpha, beta) {
   try{
     positionCount++
     let bestMove = ''
@@ -49,26 +51,40 @@ function Search(depth, black) {
     if (black) {
       let bestEvaluation = Number.POSITIVE_INFINITY
       for (let j = 0; j < possibleMoves.length; j++) {
+        if (alpha > beta) {
+	  break
+	}
         let move = possibleMoves[j]
         game.move(move)
-        let [childMove, childEvaluation] = Search(depth - 1, false)
-        if (childEvaluation < bestEvaluation) {
-          bestMove = move
+        let [childMove, childEvaluation] = Search(depth - 1, false, alpha, beta)
+	if (childEvaluation < bestEvaluation) {
+	  bestMove = move
+          bestEvaluation = childEvaluation
+	}
+        if (childEvaluation <= beta) {
+          beta = childEvaluation
         }
-        bestEvaluation = Math.min(childEvaluation, bestEvaluation)
+        //beta = Math.min(childEvaluation, beta)
         game.undo(move)
       }
       return [bestMove, bestEvaluation];
-    }else{
+     }else{
       let bestEvaluation = Number.NEGATIVE_INFINITY
       for (let j = 0; j < possibleMoves.length; j++) {
+        if (alpha > beta) {
+	  break
+	}
         let move = possibleMoves[j]
         game.move(move)
-        let [childMove, childEvaluation] = Search(depth - 1, true)
+        let [childMove, childEvaluation] = Search(depth - 1, true, alpha, beta)
         if (childEvaluation > bestEvaluation) {
-          bestMove = move
+	  bestMove = move
+	  bestEvaluation = childEvaluation
+	}
+        if (childEvaluation >= alpha) {
+          alpha = childEvaluation 
         }
-        bestEvaluation = Math.max(childEvaluation, bestEvaluation)
+        //beta = Math.max(childEvaluation, alpha)
         game.undo(move)
       }
       return [bestMove, bestEvaluation];
@@ -107,13 +123,14 @@ function getPieceValue (piece) {
 }
 
 function enemyMove () {
-  // search function (depth, alpha, beta)
-  let depth = 2
+  let depth = 3
+  positionCount = 0
   
   let t1 = new Date().getTime()
-  let [move, eval] = Search(depth, true)
+  let [move, eval] = Search(depth, true, alpha, beta)
   let t2 = new Date().getTime()
   let moveTime = (t2 - t1) / 1000
+  console.log(positionCount)
   console.log(moveTime)
 
   game.move(move)

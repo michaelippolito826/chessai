@@ -4,6 +4,7 @@ let whiteSquareGrey = '#a9a9a9'
 let blackSquareGrey = '#696969'
 let $eval = $('#eval')
 let turn = 0
+let positionCount = 0
 
 let italianop = ["1.e4 e5 2.Nf3 Nc6 3.Bc4"]
 let scotchop = ["1.e4 e5 2.Nf3 Nc6 3.d4"]
@@ -14,6 +15,7 @@ let queengambitop = ["1.d4 d5 2.c4 dxc4"]
 
 // Evaulation Function
 function evaluateBoard() {
+  let evalMove = ''
   let fentoobject = Chessboard.fenToObj(game.fen())
   var piecesOnBoard = [];
   for(key in fentoobject) {
@@ -21,11 +23,8 @@ function evaluateBoard() {
       piecesOnBoard.push(fentoobject[key]);
     }
   }
-  //window.alert(piecesOnBoard)
-  
   let whiteEvaluation = 0
   let blackEvaluation = 0
-  try {
   for (let i = 0; i < piecesOnBoard.length; i++) {
        let currentPieceValue = getPieceValue(piecesOnBoard[i])
        if (currentPieceValue > 0) {
@@ -34,86 +33,53 @@ function evaluateBoard() {
            blackEvaluation = blackEvaluation + currentPieceValue }  
   }
   let evaluation = whiteEvaluation + blackEvaluation
-  return evaluation;
-  }catch(e){
-  alert(e)
-  }
+  return [evalMove, evaluation];
 }
 
-function Search(depth) {
+function Search(depth, black) {
   try{
+    positionCount++
+    let bestMove = ''
     let possibleMoves = game.moves()
     if (depth == 0) {
       return evaluateBoard();
     }
-
     if (possibleMoves.length === 0) return window.alert("Checkmate!");
 
-    let bestEvaluation = -99999
-
-    for (let j = 0; j < possibleMoves.length; j++) {
-      let move = possibleMoves[j]
-      game.move(move)
-      let evaluation = -Search(depth - 1)
-      bestEvaluation = Math.max(evaluation, bestEvaluation)
-      game.undo(move)
-      // window.alert(evaluation)
-      // window.alert(bestEvaluation)
-      console.log(evaluation)
-      console.log(bestEvaluation)
+    if (black) {
+      let bestEvaluation = Number.POSITIVE_INFINITY
+      for (let j = 0; j < possibleMoves.length; j++) {
+        let move = possibleMoves[j]
+        game.move(move)
+        let [childMove, childEvaluation] = Search(depth - 1, false)
+        if (childEvaluation < bestEvaluation) {
+          bestMove = move
+        }
+        bestEvaluation = Math.min(childEvaluation, bestEvaluation)
+        console.log(childEvaluation)
+        console.log(bestEvaluation)
+        console.log("*****************")
+        game.undo(move)
+      }
+      console.log(bestMove)
+      return [bestMove, bestEvaluation];
+    }else{
+      let bestEvaluation = Number.NEGATIVE_INFINITY
+      for (let j = 0; j < possibleMoves.length; j++) {
+        let move = possibleMoves[j]
+        game.move(move)
+        let [childMove, childEvaluation] = Search(depth - 1, true)
+        if (childEvaluation > bestEvaluation) {
+          bestMove = move
+        }
+        bestEvaluation = Math.max(childEvaluation, bestEvaluation)
+        game.undo(move)
+      }
+      return [bestMove, bestEvaluation];
     }
-    
-    return bestEvaluation;
   }catch(e){
   alert(e.stack)}
 }
-
-//function Search(depth) {
-//     try{
-//     let fentoobject = Chessboard.fenToObj(game.fen())
-//     let possibleMoves = game.moves()
-//     window.alert(possibleMoves)
-  
-//     // game over
-//     if (possibleMoves.length === 0) return window.alert("Checkmate!");
-  
-//     if (depth == 0) {
-//       return evaluateBoard(fentoobject);
-//     }
-  
-//     let bestMove = ''
-//     let evaluationInt = 99999
-//     let evaluation = 0
-    
-//     for (let j = 0; j < possibleMoves.length; j++) {
-      
-//       let move = possibleMoves[j]
-      
-//       game.move(move)
-//       fentoobject = Chessboard.fenToObj(game.fen())
-//       evaluation = evaluateBoard(fentoobject)
-//       game.undo(move)
-  
-//       if (evaluation <= evaluationInt) {
-//         evaluationInt = evaluation
-//         bestMove = move
-//       }
-  
-//       game.setTurn("w")
-//       whitemoves = game.moves()
-//       window.alert(whitemoves)      
-      
-      
-      
-      
-//     }
-//     window.alert(bestMove)
-//     window.alert(evaluationInt)
-    
-//     return evaluationInt, bestMove;
-//     }catch(e){
-//     alert(e)}
-//   }
 
 function getPieceValue (piece) {
   if (piece === 'wP') {
@@ -142,11 +108,11 @@ function getPieceValue (piece) {
       return -9000;
   }
     throw "Unknown piece type: " + piece;
-};
+}
 
 function enemyMove () {
   // search function (depth, alpha, beta)
-  let depth = 1
+  let depth = 2
 
   //if (turn == 0) {
     //nextMove = "e5"
@@ -159,7 +125,15 @@ function enemyMove () {
     //game.move(nextMove)
   //}
   // window.alert(Search(depth))
-  console.log(Search(depth))
+  
+  //let t1 = new Date().getTime()
+  let [move, eval] = Search(depth, true)
+  //window.alert(move)
+  //let t2 = new Date().getTime()
+  //let moveTime = t2 - t1
+  //window.alert(moveTime)
+  console.log("------------------------------------------------------------------------------------")
+  game.move(move)
   board.position(game.fen())
 
   //turn = turn + 1
@@ -203,7 +177,7 @@ function onDrop(source, target) {
   // illegal move
   if (move === null) return 'snapback'
 
-  // make random legal move for black
+  // make move for black
   window.setTimeout(enemyMove, 250)
 }
 
@@ -236,10 +210,24 @@ function onMouseoutSquare(square, piece) {
   removeGreySquares()
 }
 
+(function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function () {
+      for (var i = 0; i < arguments.length; i++) {
+        if (typeof arguments[i] == 'object') {
+            logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(arguments[i], undefined, 2) : arguments[i]) + '<br />';
+        } else {
+            logger.innerHTML += arguments[i] + '<br />';
+        }
+      }
+    }
+})();
+
 let config = {
   draggable: true,
-  // position: 'start',
-  position: 'r1b1kbnr/ppp2ppp/2nqp3/3pN3/3P4/3Q4/PPP1PPPP/RNB1KB1R',
+  position: 'start',
+  //position: 'r1b1kbnr/ppp2ppp/2nqp3/3pN3/3P4/3Q4/PPP1PPPP/RNB1KB1R',
   moveSpeed: 100,
   onDragStart: onDragStart,
   onDrop: onDrop,
@@ -249,16 +237,3 @@ let config = {
   showErrors: 'alert',
 }
 board = Chessboard('myBoard', config)
-
-//window.addEventListener("error", handleError, true);
-
-function handleError(evt) {
-    if (evt.message) { // Chrome sometimes provides this
-      alert("error: "+evt.message +" at linenumber: "+evt.lineno+" of file: "+evt.filename);
-    } else {
-      alert("error: "+evt.type+" from element: "+(evt.srcElement || evt.target));
-    }
-}
-window.onerror = function(message, url, line) {
-  alert(message + ', ' + url + ', ' + line);
-};

@@ -56,12 +56,8 @@ function Search(depth, black) {
           bestMove = move
         }
         bestEvaluation = Math.min(childEvaluation, bestEvaluation)
-        console.log(childEvaluation)
-        console.log(bestEvaluation)
-        console.log("*****************")
         game.undo(move)
       }
-      console.log(bestMove)
       return [bestMove, bestEvaluation];
     }else{
       let bestEvaluation = Number.NEGATIVE_INFINITY
@@ -113,31 +109,15 @@ function getPieceValue (piece) {
 function enemyMove () {
   // search function (depth, alpha, beta)
   let depth = 2
-
-  //if (turn == 0) {
-    //nextMove = "e5"
-    //game.move(nextMove)
-  //} else if (turn == 1) {
-    //nextMove = "Nc6"
-    //game.move(nextMove)
-  //} else {
-    //nextMove = Search(depth)
-    //game.move(nextMove)
-  //}
-  // window.alert(Search(depth))
   
-  //let t1 = new Date().getTime()
+  let t1 = new Date().getTime()
   let [move, eval] = Search(depth, true)
-  //window.alert(move)
-  //let t2 = new Date().getTime()
-  //let moveTime = t2 - t1
-  //window.alert(moveTime)
-  console.log("------------------------------------------------------------------------------------")
+  let t2 = new Date().getTime()
+  let moveTime = (t2 - t1) / 1000
+  console.log(moveTime)
+
   game.move(move)
   board.position(game.fen())
-
-  //turn = turn + 1
-  //window.alert(turn)
 }
 
 // show legal moves

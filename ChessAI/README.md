@@ -14,4 +14,4 @@ TO-DO
 - move ordering
 - Piece Square Tables implementations
 - Optimizing evaluation function (keep track of captured pieces)
-- Adding position counter and evualation bar to HTML
+- Adding position counter and evaluation bar to HTML
